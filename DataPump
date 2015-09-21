@@ -1,0 +1,52 @@
+#!/bin/bash
+RECEIVER="xxxx@xxx.com,xxxx@xxxxx.com"
+DATE=$(date +"%Y%m%d")
+LOGFILE=/export/home/oracle/log/`basename $0`_${DATE}.log
+HOSTNAME=`hostname`
+
+# set profile
+
+. $HOME/.profile
+SID=$ORACLE_SID
+
+ echo -e "\nExport start" > $LOGFILE
+/usr/bin/date >> $LOGFILE
+
+$ORACLE_HOME/bin/expdp parfile=/export/home/oracle/bin/mypar.par  >> $LOGFILE
+echo $?
+
+if [[ $? != 0 ]]; then
+
+SUBJECT="Warning - Error - Export unsuccessful, Host $HOSTNAME, SID: $SID"
+echo -e "Status: Error" >> $LOGFILE
+cat /var/oracle/DKONS/rman/datapump/mydump.log >> $LOGFILE
+mv /var/oracle/DKONS/rman/datapump/mydump.log /var/oracle/DKONS/rman/datapump/mydump._${DATE}.log
+mv /var/oracle/DKONS/rman/datapump/mydump.dmp /var/oracle/DKONS/rman/datapump/mydump_${DATE}.dmp
+
+find /var/oracle/DKONS/rman/datapump -mtime +7 -exec rm {} \;
+else
+SUBJECT="Export successful, Host: $HOSTNAME, SID: $SID"
+echo -e "Status: OK" >> $LOGFILE
+cat /var/oracle/DKONS/rman/datapump/mydump.log >> $LOGFILE
+mv /var/oracle/DKONS/rman/datapump/mydump.log /var/oracle/DKONS/rman/datapump/mydump._${DATE}.log
+mv /var/oracle/DKONS/rman/datapump/mydump.dmp /var/oracle/DKONS/rman/datapump/mydump_${DATE}.dmp
+
+find /var/oracle/DKONS/rman/datapump -mtime +7 -exec rm {} \;
+
+fi
+echo -e "End of export" >> $LOGFILE
+/usr/bin/date >> $LOGFILE
+MSG=`cat $LOGFILE`
+
+cat << EOF | /usr/sbin/sendmail -t
+To: $RECEIVER
+
+Subject: $SUBJECT
+
+From: xxxx@xxxx.com
+
+$MSG
+
+EOF
+
+ 
