@@ -49,22 +49,16 @@ SKRIPT_NAME_WITH_PATH=$0
  
 
         echo "$DATE: SIGTERM erhalten. Exit."  >> $LOGFILE
-
         EMPFAENGER='IT-OPS.Unix@db-is.com,IT-OPS.Database@db-is.com,ana-maria.oancea@db-is.com,arkadiusz.borucki@db-is.com,Shally.Batra@db-is.com'
-
         BETREFF="!!! WARNUNG !!! RMAN $MODE Sicherung von $ORACLE_SID wurde beendet"
-
         NACHRICHT="Die RMAN Sicherung $MODE $LEVEL fuer die Datenbank $ORACLE_SID wurde beendet, da ein Job mit hoeherer Prioritaet ausgefuehrt wird. Falls diese Nachricht mehrfach erzeugt wird, bitte die Logdatei $LOGFILE pruefen und die Sicherung ggf. neu starten!"
-
         send_mail "$ABSENDER" "$EMPFAENGER" "$BETREFF" "$NACHRICHT" "hoch" "$DEVMAIL"
 
         exit 1
 
         kill -9 $$
-
- 
-
 }
+
 
  
 function default_error_msg
@@ -174,8 +168,6 @@ FUSSZEILE="------------------------------------------
 
 Dieses Ticket soll IT-OPS Database/IT-OPS UNIX zugewiesen werden!
 
- 
-
 Diese Mail wurde automatisch generiert von
 
 $SKRIPT_NAME auf `hostname`"
@@ -260,11 +252,7 @@ fi
 
  
 
- 
-
-sync_catalog ()
-
- 
+ sync_catalog ()
 
 {
 
@@ -346,9 +334,7 @@ fi
 
  
 
- 
-
-###
+ ###
 
 #  Oracle RMAN variables
 
@@ -357,7 +343,6 @@ fi
 CATA="catalog rmancat/rmancat@PRMANCAT"
 
  
-
 for parameter in $*
 
 do
@@ -425,7 +410,6 @@ export ORACLE_SID
  
 
 cat_input=$(echo $TYPE | grep -i -w  catalog | wc -l)
-
 nocat_input=$(echo $TYPE | grep -i -w  nocatalog | wc -l)
 
 if [[ "cat_input" -ne 1 && "nocat_input" -ne 1 ]]; then
@@ -448,14 +432,9 @@ echo ----------------------------------------------------------
 
 exit 1
 
- 
-
 fi
 
  
-
- 
-
 ##
 
 # Logfile
@@ -467,7 +446,6 @@ DATE=`date +%Y%m%d%H%M`
 LOGFILE=/export/home/oracle/log/`basename $0`_${SID}_${MODE}_${LEVEL}_${TYPE}_${DATE}.log
 
 echo "Following parameters has been set :"
-
 echo -------------------------------------------------
 
  
@@ -576,10 +554,6 @@ esac
 
  
 
- 
-
- 
-
 case $TYPE in
 
     'catalog'|'CATALOG')
@@ -680,10 +654,6 @@ fi
 
  
 
- 
-
- 
-
 esac
 
  
@@ -696,10 +666,7 @@ fi
 
  
 
- 
-
 # Verifiziert die Anzahl Parameter
-
 #
 
  
