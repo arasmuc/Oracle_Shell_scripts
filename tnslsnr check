@@ -1,0 +1,16 @@
+#!/bin/bash
+#######################################################################
+########  Arkadiusz Borucki
+#######################################################################
+DBA="aborucki@xxxxxxxx"
+ORACLE_SID="A"
+ ORACLE_HOME="/Oracle/app/oracle/product/db11g"
+
+c=`ps -ef | grep tnslsnr | grep -v grep | wc -l`
+echo $c
+
+if [ $c -eq 0 ];then
+echo "tnslsnr down"
+return 1
+exit
+fi
