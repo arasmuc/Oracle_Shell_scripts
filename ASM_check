@@ -3,7 +3,7 @@
 ######## Arkadiusz Borucki
 #######################################################################
 DBA="aborucki@xxxxxxxx"
-ORACLE_SID="ALMA"
+ORACLE_SID="A"
  ORACLE_HOME="/Oracle/app/oracle/product/db11g"
 
 c=`ps -elf | grep pmon | grep -v grep | grep ASM| wc -l`
