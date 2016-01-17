@@ -1,0 +1,16 @@
+#!/bin/bash
+#######################################################################
+######## Arkadiusz Borucki
+#######################################################################
+DBA="aborucki@xxxxxxxx"
+ORACLE_SID="ALMA"
+ ORACLE_HOME="/Oracle/app/oracle/product/db11g"
+
+c=`ps -elf | grep pmon | grep -v grep | grep ASM| wc -l`
+echo $c
+
+if [ $c -eq 0 ];then
+echo "ASM down"
+return 1
+exit
+fi
