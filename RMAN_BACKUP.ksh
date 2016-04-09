@@ -1,31 +1,6 @@
 #!/usr/bin/ksh
 ###################################################################################
-# Last commit information:
-# $Revision:: 001             $
-# $Author::  $
-# $Date::    $
-#
-# Revision:: 002  2014-02-10 11:00   Ana-Maria Oancea   - modified $LOGFILE:
-#                                                         OLD: LOGFILE=/export/home/oracle/log/`basename $0`_$MODE_${LEVEL}_${DATE}.log
-#                                                         NEW: LOGFILE=/export/home/oracle/log/`basename $0`_${MODE}_${LEVEL}_${DATE}.log
-#                                                       - added export NLS_DATE_FORMAT="DD-MM-YYYY HH24:MI:SS"
-#
-# Revision:: 003 2014-02-11 Ana-Maria Oancea - added self awareness - script does not start if it detects another instance of itself already running.
-#                                            - added CROSSCHECK BACKUP before DELETE OBSOLETE for del_obsolete mode
-#
-# Revision:: 004 2014-02-18 Ana-Maria Oancea - removed 'AS COMPRESSED BACKUPSET' as per suggestions in SR #3-8566538621
-#                                            - changed BETREFF and NACHRICHT to include $MODE
-#
-# Revision:: 005 2014-02-25 Fernando Borges Ferreira  - added extended error / signal handling (procedures trap_force_exit and default_error_msg)
-#                                                     - extended self awareness, so that high priority backups (incremental lvl 0 and 1) can override lesser
-#                                                       backups (procedure check_running_process)
-#                                                     - ITIL conformity: a ticket is generated if the script aborts
-#
-# Revision:: 006 2014-03-06 Ana-Maria Oancea - changed RMAN Catalog connection string
-#                                            - added variable SKRIPT_NAME_WITH_PATH=$0 so that the script behaves the same on Solaris 11 SPARC
-# Revision:: 007 2014-09-23 Arkadiusz Karol Borucki - added two more imput parameters CATALOG and NOCATALOG
-# Revision:: 008 2014-09-23 Arkadiusz Karol Borucki - added funcion sync_catalog to NOCATALOG mode
-# Revision:: 009 2014-09-23 Arkadiusz Karol Borucki - added function check_catalog to to check if catalog is online
+
 ###################################################################################
 #set -x
 USAGE="`basename $0`"
@@ -49,7 +24,7 @@ SKRIPT_NAME_WITH_PATH=$0
  
 
         echo "$DATE: SIGTERM erhalten. Exit."  >> $LOGFILE
-        EMPFAENGER='IT-OPS.Unix@db-is.com,IT-OPS.Database@db-is.com,ana-maria.oancea@db-is.com,arkadiusz.borucki@db-is.com,Shally.Batra@db-is.com'
+        EMPFAENGER='arkadiusz.borucki@xx-xx.xxx'
         BETREFF="!!! WARNUNG !!! RMAN $MODE Sicherung von $ORACLE_SID wurde beendet"
         NACHRICHT="Die RMAN Sicherung $MODE $LEVEL fuer die Datenbank $ORACLE_SID wurde beendet, da ein Job mit hoeherer Prioritaet ausgefuehrt wird. Falls diese Nachricht mehrfach erzeugt wird, bitte die Logdatei $LOGFILE pruefen und die Sicherung ggf. neu starten!"
         send_mail "$ABSENDER" "$EMPFAENGER" "$BETREFF" "$NACHRICHT" "hoch" "$DEVMAIL"
@@ -64,8 +39,8 @@ SKRIPT_NAME_WITH_PATH=$0
 function default_error_msg
 
 {
-        EMPFAENGER='IT-OPS.Database@db-is.com'
-        CC='IT-OPS.Unix@db-is.com,IT-OPS.Database@db-is.com,Arkadiusz.Borucki@db-is.com'
+        EMPFAENGER='IT-OPS.Database@xx-xx.xxx'
+        CC='Arkadiusz.Borucki@xx-xx.xx'
         echo "$DATE:  erhalten. Exit." >> $LOGFILE
         BETREFF="!!! ERROR !!! RMAN $MODE Sicherung von $ORACLE_SID wurde nicht korrekt beendet"
         NACHRICHT="Die RMAN Sicherung $MODE $LEVEL fuer die Datenbank $ORACLE_SID wurde nicht korrekt beendet! Bitte die Logdatei $LOGFILE pruefen und die Sicherung ggf. neu starten!"
@@ -123,10 +98,8 @@ function check_running_process
              'archives')
              # Archivelog Sicherung wird gestoppt
                kill -s TERM $PID
-
              ;;
 
- 
              * )
              # Mache weiter
                true
@@ -137,9 +110,7 @@ function check_running_process
 
 }
 
- 
 function send_mail
-
 {
 
 SENDMAIL=/usr/sbin/sendmail
@@ -158,7 +129,7 @@ fi
 
 if [[ -n $7 ]]; then
 
-   BCC="fernando.borgesferreira@db-is.com; $7"
+   BCC="arkadiusz.borucki@xx-xx.xxx; $7"
 
 fi
 
@@ -167,9 +138,7 @@ fi
 FUSSZEILE="------------------------------------------
 
 Dieses Ticket soll IT-OPS Database/IT-OPS UNIX zugewiesen werden!
-
 Diese Mail wurde automatisch generiert von
-
 $SKRIPT_NAME auf `hostname`"
 
  
@@ -198,7 +167,7 @@ X-MSMail-Priority: High"
 
         * )
 
-HEADER="From:noreply@db-is.com
+HEADER="From:noreply@xx-xx.xxx
 To:$EMPFAENGER
 Cc: $CC
 Bcc: $BCC
@@ -283,9 +252,7 @@ else
 echo "$DATE:   RMAN-Katalog RMANCAT ist nicht verfügbar" >> $LOGFILE
 
                BETREFF="WARNUNG ! RMAN-Katalog RMANCAT ist nicht verfügbar - HOST=sdb161f1 PORT=1521 vom `hostname`"
-
                NACHRICHT=" RMAN-Katalog RMANCAT ist nicht verfügbar - HOST=sdb161f1 PORT=1521 vom `hostname`"
-
                send_mail "$ABSENDER" "$EMPFAENGER" "$BETREFF" "$NACHRICHT" "$DEVMAIL"
 
  
@@ -296,12 +263,7 @@ fi
 
 }
 
- 
-
- 
-
 check_catalog ()
-
 {
 
 cat_alive=$(tnsping PRMANCAT | grep OK | grep -v grep | wc -l)
@@ -309,11 +271,8 @@ cat_alive=$(tnsping PRMANCAT | grep OK | grep -v grep | wc -l)
 if [[ "cat_alive" -ne 1 ]]; then
 
 echo "$DATE:   RMAN-Katalog RMANCAT ist nicht verfügbar" >> $LOGFILE
-
                BETREFF="WARNUNG ! RMAN-Katalog RMANCAT ist nicht verfügbar - HOST=sdb161f1 PORT=1521 vom `hostname`"
-
                NACHRICHT=" RMAN-Katalog RMANCAT ist nicht verfügbar - HOST=sdb161f1 PORT=1521 vom `hostname`"
-
                send_mail "$ABSENDER" "$EMPFAENGER" "$BETREFF" "$NACHRICHT" "$DEVMAIL"
 
 echo RMAN-Katalog RMANCAT ist nicht verfügbar
@@ -448,52 +407,32 @@ LOGFILE=/export/home/oracle/log/`basename $0`_${SID}_${MODE}_${LEVEL}_${TYPE}_${
 echo "Following parameters has been set :"
 echo -------------------------------------------------
 
- 
-
 echo "SID     $SID"
-
 echo "MODE    $MODE"
-
 echo "LEVEL   $LEVEL"
-
 echo "TYPE    $TYPE"
-
- 
 
 echo --------------------------------------------------
 
 #
-
 # Einstellung fuer Emailversand
-
 #
-
 ###
 
  
 
-ABSENDER='noreply@db-is.com'
-
-EMPFAENGER='IT-OPS.Unix@db-is.com,IT-OPS.Database@db-is.com,arkadiusz.borucki@db-is.com,Shally.Batra@db-is.com'
-
-DEVMAIL='arkadiusz.borucki@db-is.com,Shally.Batra@db-is.com'
-
- 
+ABSENDER='noreply@xx-xx.xxx'
+EMPFAENGER='arkadiusz.borucki@xx-xx.xxx'
+DEVMAIL='arkadiusz.borucki@x-xx.xxx'
 
 trap trap_force_exit TERM
-
 trap default_error_msg INT
-
- 
-
- 
 
 case $LEVEL in
 
       0)
 
          check_running_process
-
          RMAN_COMM="BACKUP AS COMPRESSED BACKUPSET INCREMENTAL LEVEL $LEVEL DATABASE FILESPERSET 1;"
 
       ;;
@@ -501,7 +440,6 @@ case $LEVEL in
       1)
 
          check_running_process
-
          RMAN_COMM="BACKUP AS COMPRESSED BACKUPSET $MODE LEVEL $LEVEL DATABASE FILESPERSET 1;"
 
       ;;
@@ -517,11 +455,8 @@ case $MODE in
          check_running_process
 
          RMAN_COMM="CROSSCHECK ARCHIVELOG ALL;
-
          BACKUP AS COMPRESSED BACKUPSET ARCHIVELOG ALL NOT BACKED UP 1 TIMES FILESPERSET 10;
-
          DELETE NOPROMPT ARCHIVELOG ALL COMPLETED BEFORE 'SYSDATE-2/2.4' backed up 1 times to device type disk;"
-
       ;;
 
       controlfile)
@@ -533,15 +468,10 @@ case $MODE in
       del_obsolete)
 
          RMAN_COMM="CROSSCHECK BACKUP;
-
          DELETE NOPROMPT EXPIRED BACKUP;
-
          CROSSCHECK ARCHIVELOG ALL;
-
          DELETE NOPROMPT EXPIRED ARCHIVELOG ALL;
-
          DELETE NOPROMPT OBSOLETE;"
-
       ;;
 
       del_archives)
@@ -557,14 +487,11 @@ esac
 case $TYPE in
 
     'catalog'|'CATALOG')
-
 echo $RMAN_COMM
 
 #check_catalog
 
- 
-
-  #rman target / "$CATA" <<_EOF_>> $LOGFILE
+   #rman target / "$CATA" <<_EOF_>> $LOGFILE
 
     rman target / <<_EOF_>> $LOGFILE
 
@@ -573,8 +500,7 @@ echo $RMAN_COMM
        run{
 
             CONFIGURE CHANNEL DEVICE TYPE DISK FORMAT '/var/oracle/$SID/rman/backupset/$SID-%d_%s_%p_%T.bak';
-
-            $RMAN_COMM
+           $RMAN_COMM
 
           }
 
@@ -585,7 +511,6 @@ _EOF_
 if [[ $? != 0 ]]; then
 
   default_error_msg
-
   cat $LOGFILE
 
 else
@@ -599,13 +524,10 @@ echo
 fi
 
 check_catalog
-
 sync_catalog
-
 ;;
 
  
-
   'nocatalog'|'NOCATALOG')
 
 echo $RMAN_COMM
@@ -617,18 +539,13 @@ rman target / <<_EOF_>> $LOGFILE
        run{
 
             CONFIGURE CHANNEL DEVICE TYPE DISK FORMAT '/var/oracle/$SID/rman/backupset/$SID-%d_%s_%p_%T.bak';
-
-            $RMAN_COMM
+           $RMAN_COMM
 
           }
 
     exit
 
 _EOF_
-
- 
-
- 
 
 #sync_catalog
 
@@ -637,7 +554,6 @@ _EOF_
 if [[ $? != 0 ]]; then
 
   default_error_msg
-
   cat $LOGFILE
 
 else
