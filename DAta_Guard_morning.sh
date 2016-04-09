@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 ###################################################################################
 # Arkadiusz Karol Borucki
-# 
+# Script create restore point and disable Data Guard
 # Job run at 8 AM
 ###################################################################################
 # set profile
@@ -44,7 +44,6 @@ _EOF_
 if [[ $? != 0 ]]; then
 
    echo "error  $?"
-
    default_error_msg
 
 fi
@@ -79,14 +78,9 @@ contents of error log:
 
  
 
- 
-
- 
-
  ------------------------------------------------------------------------------
 "
 BETREFF="IEMM Something goes wrong "
-EMPFAENGER='arkadiusz.borucki@db-is.com,IT-OPS.Database@db-is.com'
+EMPFAENGER='arkadiusz.borucki@xx-xx.xxx,IT-OPS.Database@x-xx.xxx'
 send_mail "$ABSENDER" "$EMPFAENGER" "$BETREFF" "$NACHRICHT" "$DEVMAIL"
-
 fi
