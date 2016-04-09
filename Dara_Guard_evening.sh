@@ -1,8 +1,7 @@
 #!/usr/bin/bash
 ###################################################################################
-#
 # Arkadiusz Karol Borucki -  Job run at 4PM
-#
+# Script flashback database and enable Data Guard
 ###################################################################################
 
 # set profile
@@ -44,7 +43,7 @@ fi
 
 if [[ -n $7 ]]; then
 
-   BCC="IT-OPS.Database@db-is.com; $7"
+   BCC="IT-OPS.Database@xx-xx.xxx; $7"
 
 fi
 
@@ -87,7 +86,7 @@ X-MSMail-Priority: High"
 
         * )
 
-HEADER="From:noreply@db-is.com
+HEADER="From:noreply@xx-xx.xxx
 To:$EMPFAENGER
 Cc: $CC
 Bcc: $BCC
@@ -115,18 +114,12 @@ EOF
 
 $SENDMAIL -t < $MAILFILE
 
-
 if [[ -f $MAILFILE ]]; then
-
 rm $MAILFILE
-
 echo ''
-
 fi
-
 }
 
- 
 ###################################################################################
 ###################################################################################
 
@@ -137,22 +130,14 @@ send_mail "$ABSENDER" "$EMPFAENGER" "$BETREFF" "$NACHRICHT" "$DEVMAIL"
 
 default_error_msg ()
 
- 
-
 {
-
-EMPFAENGER='arkadiusz.borucki@db-is.com,IT-OPS.Database@db-is.com'
-
+EMPFAENGER='arkadiusz.borucki@xx-xx.xxx,IT-OPS.Database@xx-xx.xxx'
 BETREFF="IEMM Something goes wrong - go to ALERT logs "
-
 NACHRICHT="Go to ALERT logs
-
- 
 
 `cat $LOGFILE`
 
 -----------------------------------------------------------------------------
-
 "
 
 send_mail "$ABSENDER" "$EMPFAENGER" "$BETREFF" "$NACHRICHT" "$DEVMAIL"
@@ -165,11 +150,8 @@ send_mail "$ABSENDER" "$EMPFAENGER" "$BETREFF" "$NACHRICHT" "$DEVMAIL"
 ###################################################################################
 
 echo  Oracle database startup mount
-
 ORA_SID=$(echo $ORACLE_SID)
-
 echo $ORA_SID
-
 echo ------------------------------------------------------------------
 
 $ORACLE_HOME/bin/sqlplus / as sysdba@IEMM << _EOF_ >> $LOGFILE
@@ -178,11 +160,9 @@ set linesize 300
 WHENEVER SQLERROR EXIT SQL.SQLCODE
 
 shutdown immediate;
-
 startup mount;
 
 exit;
-
 _EOF_
 
 if [[ $? != 0 ]]; then
