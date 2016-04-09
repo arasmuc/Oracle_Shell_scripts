@@ -74,11 +74,8 @@ function check_running_process
              # der aktive Prozess wird in Ruhe gelassen
 
                echo "$DATE:   ein Prozess mit hoeherer Prioritaet laeuft bereits. Exit." >> $LOGFILE
-
                BETREFF="!!! WARNUNG !!! RMAN $MODE Sicherung von $ORACLE_SID wird nicht ausgefuehrt"
-
                NACHRICHT="Die RMAN Sicherung $MODE $LEVEL fuer die Datenbank $ORACLE_SID wird nicht ausgefuehrt, da eine andere Instanz davon bereits aktiv ist. Die Sicherung $SICHERUNGSART ist vorrangig. Falls diese Meldung haeufig vorkommt, bitte die Logfiles pruefen und ggf. optimieren."
-
                send_mail "$ABSENDER" "$EMPFAENGER" "$BETREFF" "$NACHRICHT" "$DEVMAIL"
 
                exit 0;
@@ -192,23 +189,15 @@ cat >> $MAILFILE << EOF
 $HEADER
 
 -----------------------------------------
-
 $NACHRICHT
 $FUSSZEILE
 EOF
 
- 
-
 $SENDMAIL -t < $MAILFILE
 
- 
-
 if [[ -f $MAILFILE ]]; then
-
 rm $MAILFILE
-
 echo ''
-
 fi
 
 }
@@ -243,11 +232,7 @@ resync catalog
 
 _EOF_
 
- 
-
 else
-
- 
 
 echo "$DATE:   RMAN-Katalog RMANCAT ist nicht verfügbar" >> $LOGFILE
 
@@ -256,11 +241,8 @@ echo "$DATE:   RMAN-Katalog RMANCAT ist nicht verfügbar" >> $LOGFILE
                send_mail "$ABSENDER" "$EMPFAENGER" "$BETREFF" "$NACHRICHT" "$DEVMAIL"
 
  
-
 echo  RMAN-Katalog RMANCAT ist nicht verfügbar
-
 fi
-
 }
 
 check_catalog ()
@@ -281,127 +263,74 @@ exit 1
 
 else
 
- 
-
-echo RMAN-Katalog RMANCAT ist verfügbar
-
- 
-
+ echo RMAN-Katalog RMANCAT ist verfügbar
 fi
 
 }
-
- 
-
- ###
-
+###
 #  Oracle RMAN variables
-
 ###
 
 CATA="catalog rmancat/rmancat@PRMANCAT"
 
- 
-for parameter in $*
+ for parameter in $*
 
 do
-
-        if [[  -n `echo $parameter | grep -w [0-9]` ]]; then
-
+       if [[  -n `echo $parameter | grep -w [0-9]` ]]; then
                 LEVEL=$parameter
-
         elif [[ $parameter = 'cumulative' || $parameter = 'incremental' || $parameter = 'archives' || $parameter = 'controlfile' || $parameter = 'del_obsolete' || $parameter = 'del_archives' ]]; then
-
                 MODE=$parameter
-
         fi
-
 done
 
  
 
 ####################################
 
- 
-
 #lev_imput=$(echo $LEVEL)
-
 #if [[ "lev_imput" -gt 1 ]]; then
-
 #echo ----------------------------------------------------------
-
 #echo
-
 #echo WARNING - Syntax error - just 0 or 1 allowed
-
 #echo
-
 #echo ----------------------------------------------------------
-
 #exit 1
-
 #fi
-
- 
-
 ####################################
 
 for last; do true; done
-
 TYPE=$last
 
 ####################################
 
 SID=$*
-
 SID=$(echo $SID | awk -F" " '{print $(NF-1)}')
-
 ORACLE_SID=$SID
-
 export ORACLE_SID
 
 ###############################################
 
- 
-
 # Check syntax
-
- 
-
 cat_input=$(echo $TYPE | grep -i -w  catalog | wc -l)
 nocat_input=$(echo $TYPE | grep -i -w  nocatalog | wc -l)
 
 if [[ "cat_input" -ne 1 && "nocat_input" -ne 1 ]]; then
 
  
-
 echo ----------------------------------------------------------
-
 echo
-
 echo WARNING - Syntax error CATALOG or NOCATALOG option ommited
-
 echo
-
 echo ----------------------------------------------------------
-
- 
-
- 
 
 exit 1
 
 fi
-
- 
 ##
-
 # Logfile
-
 ##
 
 DATE=`date +%Y%m%d%H%M`
-
 LOGFILE=/export/home/oracle/log/`basename $0`_${SID}_${MODE}_${LEVEL}_${TYPE}_${DATE}.log
 
 echo "Following parameters has been set :"
@@ -494,18 +423,14 @@ echo $RMAN_COMM
    #rman target / "$CATA" <<_EOF_>> $LOGFILE
 
     rman target / <<_EOF_>> $LOGFILE
-
       set backup files for device type DISK to accessible;
-
        run{
 
             CONFIGURE CHANNEL DEVICE TYPE DISK FORMAT '/var/oracle/$SID/rman/backupset/$SID-%d_%s_%p_%T.bak';
            $RMAN_COMM
 
           }
-
     exit
-
 _EOF_
 
 if [[ $? != 0 ]]; then
@@ -516,9 +441,7 @@ if [[ $? != 0 ]]; then
 else
 
 echo
-
 echo "Finished - no errors has been found"
-
 echo
 
 fi
@@ -531,7 +454,6 @@ sync_catalog
   'nocatalog'|'NOCATALOG')
 
 echo $RMAN_COMM
-
 rman target / <<_EOF_>> $LOGFILE
 
       set backup files for device type DISK to accessible;
@@ -559,38 +481,23 @@ if [[ $? != 0 ]]; then
 else
 
 echo
-
 echo "Finished - no erros has been found"
-
 echo
 
 fi
-
 ;;
 
- 
-
 esac
-
- 
 
 if [[ $? != 0 ]]; then
 
     default_error_msg
-
 fi
-
- 
-
 # Verifiziert die Anzahl Parameter
 #
-
- 
 
 if [[ $# -lt 2 ]]; then
 
         echo $USAGE
-
         exit 1
-
 fi
