@@ -12,17 +12,11 @@ SKRIPT_NAME_WITH_PATH=$0
 ##
 
  function trap_force_exit
-
 {
-
-##
 #
 # Tries to exit cleanly if the process receives the following signals: TERM
 #
 ##
-
- 
-
         echo "$DATE: SIGTERM erhalten. Exit."  >> $LOGFILE
         EMPFAENGER='arkadiusz.borucki@xx-xx.xxx'
         BETREFF="!!! WARNUNG !!! RMAN $MODE Sicherung von $ORACLE_SID wurde beendet"
@@ -34,10 +28,7 @@ SKRIPT_NAME_WITH_PATH=$0
         kill -9 $$
 }
 
-
- 
 function default_error_msg
-
 {
         EMPFAENGER='IT-OPS.Database@xx-xx.xxx'
         CC='Arkadiusz.Borucki@xx-xx.xx'
@@ -50,10 +41,7 @@ function default_error_msg
 
  
 function check_running_process
-
 {
-##
-#
 # Start RMAN only if there is no other instance of rman_backup.ksh script already running:
 #
 ###
